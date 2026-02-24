@@ -542,7 +542,7 @@
     .cart-item-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .cart-item-info { flex: 1; min-width: 0; }
     .cart-item-name { font-size: 13px; font-weight: 600; color: var(--black); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cart-item-meta { font-size: 10px; color: var(--gray-text); margin-top: 1px; }
+    .cart-item-meta { font-size: 10px; color: var(--gray-text); margin-top: 1px; display: flex; align-items: center; gap: 4px; }
     .cart-item-price { font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 3px; }
     .cart-qty { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
     .qty-btn {
@@ -645,6 +645,60 @@
       #header { padding-top: env(safe-area-inset-top); height: calc(var(--hdr) + env(safe-area-inset-top)); }
       footer { padding-bottom: max(28px, calc(env(safe-area-inset-bottom) + 14px)); }
     }
+
+    /* NEW: fractional quantity modal */
+    .fractional-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 800;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+      backdrop-filter: blur(4px);
+    }
+    .fractional-overlay.open { opacity: 1; pointer-events: all; }
+
+    .fractional-drawer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--white); z-index: 810;
+      transform: translateY(100%); transition: transform 0.3s ease;
+      border-radius: 24px 24px 0 0; padding: 22px 20px 30px;
+      box-shadow: 0 -4px 30px rgba(0,0,0,0.25);
+    }
+    .fractional-drawer.open { transform: translateY(0); }
+
+    .fractional-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 18px;
+    }
+    .fractional-header h3 {
+      font-size: 18px; font-weight: 800; color: var(--primary);
+    }
+    .fractional-close {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--gray-light); border: none;
+      font-size: 16px; display: flex; align-items: center; justify-content: center;
+      color: var(--gray-text); cursor: pointer;
+    }
+    .fractional-item-info {
+      background: var(--primary-soft); padding: 14px; border-radius: 12px;
+      margin-bottom: 20px; text-align: center;
+    }
+    .fractional-item-name {
+      font-size: 18px; font-weight: 700; color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .fractional-item-price {
+      font-size: 16px; font-weight: 800; color: var(--primary-mid);
+    }
+    .fractional-options {
+      display: flex; gap: 12px; justify-content: center;
+    }
+    .fractional-option {
+      flex: 1; padding: 14px 6px; border: 2px solid var(--primary);
+      border-radius: 12px; background: white; color: var(--primary);
+      font-weight: 800; font-size: 15px; cursor: pointer;
+      transition: all 0.15s; touch-action: manipulation;
+    }
+    .fractional-option:active {
+      background: var(--primary-soft); transform: scale(0.96);
+    }
   </style>
 </head>
 <body class="ar">
@@ -705,6 +759,26 @@
   </div>
   <div class="search-area" id="searchResults">
     <div class="search-msg">ابدأ الكتابة للبحث...</div>
+  </div>
+</div>
+
+<!-- FRACTIONAL QUANTITY MODAL (NEW) -->
+<div class="fractional-overlay" id="fractionalOverlay"></div>
+<div class="fractional-drawer" id="fractionalDrawer">
+  <div class="fractional-header">
+    <h3 data-en="Choose quantity" data-ar="اختر الكمية">اختر الكمية</h3>
+    <button class="fractional-close" id="fractionalCloseBtn">✕</button>
+  </div>
+  <div class="fractional-content">
+    <div class="fractional-item-info">
+      <div class="fractional-item-name" id="fractionalItemName"></div>
+      <div class="fractional-item-price" id="fractionalItemPrice"></div>
+    </div>
+    <div class="fractional-options">
+      <button class="fractional-option" data-factor="0.5">½ <span data-en="kg" data-ar="كغ">كغ</span></button>
+      <button class="fractional-option" data-factor="1">1 <span data-en="kg" data-ar="كغ">كغ</span></button>
+      <button class="fractional-option" data-factor="0.2">200 <span data-en="g" data-ar="غ">غ</span></button>
+    </div>
   </div>
 </div>
 
@@ -924,10 +998,11 @@ let currentCat     = "all";
 let currentPageNum = 1;
 let sortOption     = "default";
 let saleOnly       = false;
-let cart           = [];
+let cart           = [];   // each item has qty (float allowed)
 let lang           = "ar";
 let showUSD        = false;
 let orderType      = null;
+let currentFractionalItem = null;   // item being selected in modal
 
 const $ = id => document.getElementById(id);
 
@@ -1000,8 +1075,28 @@ function fmtPriceDual(lbp) {
 }
 
 /* ============================================================
-   DATA LOADING
+   DATA LOADING – MODIFIED: add fractional field
    ============================================================ */
+function normalizeItem(item) {
+  return {
+    id:          String(item.id || item.name_en || item.name_ar || Math.random().toString(36).slice(2)),
+    name_en:     String(item.name_en     || item.name || "").trim(),
+    name_ar:     String(item.name_ar     || "").trim(),
+    category_en: String(item.category_en || item.category || "Others").trim(),
+    category_ar: String(item.category_ar || "").trim(),
+    price:       parseFloat(item.price)  || 0,
+    salePrice:   item.sale_price   ? parseFloat(item.sale_price)   : (item.salePrice ? parseFloat(item.salePrice) : null),
+    onSale:      ["true","TRUE",true].includes(item.on_sale || item.onSale),
+    featured:    ["true","TRUE",true].includes(item.featured),
+    available:   !["false","FALSE",false].includes(item.available),
+    image_url:   String(item.image_url   || "").trim(),
+    description_en: String(item.description_en || item.description || "").trim(),
+    description_ar: String(item.description_ar || "").trim(),
+    unit:        String(item.unit || "").trim(),
+    fractional:  ["true","TRUE",true,1,"1"].includes(item.fractional_allowed || item.allow_fraction || item.fractional)
+  };
+}
+
 async function loadData() {
   let hasCached = false;
 
@@ -1055,25 +1150,6 @@ async function loadData() {
   }
 }
 
-function normalizeItem(item) {
-  return {
-    id:          String(item.id || item.name_en || item.name_ar || Math.random().toString(36).slice(2)),
-    name_en:     String(item.name_en     || item.name || "").trim(),
-    name_ar:     String(item.name_ar     || "").trim(),
-    category_en: String(item.category_en || item.category || "Others").trim(),
-    category_ar: String(item.category_ar || "").trim(),
-    price:       parseFloat(item.price)  || 0,
-    salePrice:   item.sale_price   ? parseFloat(item.sale_price)   : (item.salePrice ? parseFloat(item.salePrice) : null),
-    onSale:      ["true","TRUE",true].includes(item.on_sale || item.onSale),
-    featured:    ["true","TRUE",true].includes(item.featured),
-    available:   !["false","FALSE",false].includes(item.available),
-    image_url:   String(item.image_url   || "").trim(),
-    description_en: String(item.description_en || item.description || "").trim(),
-    description_ar: String(item.description_ar || "").trim(),
-    unit:        String(item.unit || "").trim()
-  };
-}
-
 function getItemName(item) {
   if (lang === "ar" && item.name_ar) return item.name_ar;
   return item.name_en || item.name_ar;
@@ -1104,7 +1180,8 @@ function computeCategories() {
 }
 
 /* ============================================================
-   EVENT WIRING
+   EVENT WIRING – MODIFIED: added fractional modal listeners,
+   removed old body click handler (we'll add a new one later)
    ============================================================ */
 function wireEvents() {
   $("hamburgerBtn").addEventListener("click", openNav);
@@ -1167,13 +1244,32 @@ function wireEvents() {
     $("backToTop").classList.toggle("visible", window.scrollY > 280);
   }, { passive: true });
 
-  document.body.addEventListener("click", function(e) {
-    const addBtn = e.target.closest(".add-button");
-    if (!addBtn) return;
-    e.preventDefault(); e.stopPropagation();
-    const itemId = addBtn.dataset.itemId;
-    const item = allItems.find(i => i.id === itemId);
-    if (!item) return;
+  // Fractional modal controls
+  $("fractionalOverlay").addEventListener("click", closeFractionalModal);
+  $("fractionalCloseBtn").addEventListener("click", closeFractionalModal);
+  document.querySelectorAll(".fractional-option").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const factor = parseFloat(e.currentTarget.dataset.factor);
+      if (currentFractionalItem && !isNaN(factor)) {
+        addToCart(currentFractionalItem, factor);
+        closeFractionalModal();
+      }
+    });
+  });
+}
+
+// New body click handler for add buttons (checks fractional flag)
+document.body.addEventListener('click', function(e) {
+  const addBtn = e.target.closest('.add-button');
+  if (!addBtn) return;
+  e.preventDefault(); e.stopPropagation();
+  const itemId = addBtn.dataset.itemId;
+  const item = allItems.find(i => i.id === itemId);
+  if (!item) return;
+
+  if (item.fractional) {
+    openFractionalModal(item);
+  } else {
     addToCart({
       id:        item.id,
       name_en:   item.name_en,
@@ -1183,9 +1279,9 @@ function wireEvents() {
       price:     item.salePrice ?? item.price,
       image_url: item.image_url,
       unit:      item.unit
-    });
-  });
-}
+    }, 1);
+  }
+});
 
 /* ============================================================
    ORDER TYPE
@@ -1415,7 +1511,8 @@ function wirePagination(container, context) {
 }
 
 /* ============================================================
-   ITEM CARD
+   ITEM CARD – MODIFIED: add-button now triggers modal if fractional
+   (button itself unchanged, logic handled by body click)
    ============================================================ */
 function itemCardHTML(item) {
   const name      = escHTML(getItemName(item));
@@ -1467,46 +1564,46 @@ function itemCardHTML(item) {
 }
 
 /* ============================================================
-   LAZY IMAGES
+   FRACTIONAL MODAL
    ============================================================ */
-let lazyObserver;
-function initLazyImages(container) {
-  const imgs = Array.from(container.querySelectorAll("img.lazy[data-src]"));
-  if (!("IntersectionObserver" in window)) { imgs.forEach(loadImg); return; }
-  if (!lazyObserver) {
-    lazyObserver = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) { loadImg(e.target); lazyObserver.unobserve(e.target); }
-      });
-    }, { rootMargin: "300px" });
-  }
-  imgs.forEach(img => {
-    const rect = img.getBoundingClientRect();
-    if (rect.top < window.innerHeight + 400) loadImg(img);
-    else lazyObserver.observe(img);
-  });
+function openFractionalModal(item) {
+  currentFractionalItem = item;
+  const name = getItemName(item);
+  const price = item.salePrice ?? item.price;
+  $("fractionalItemName").textContent = name;
+  $("fractionalItemPrice").textContent = fmtPrice(price) + (item.unit ? ` / ${item.unit}` : "");
+  $("fractionalOverlay").classList.add("open");
+  $("fractionalDrawer").classList.add("open");
+  document.body.style.overflow = "hidden";
 }
 
-function loadImg(img) {
-  if (!img.dataset.src) return;
-  const src = img.dataset.src;
-  img.removeAttribute("data-src");
-  img.src = src;
-  img.onload  = () => img.classList.add("loaded");
-  img.onerror = () => {
-    img.style.display = "none";
-    const fb = img.nextElementSibling;
-    if (fb && fb.classList.contains("fallback-icon")) fb.style.display = "flex";
-  };
+function closeFractionalModal() {
+  $("fractionalOverlay").classList.remove("open");
+  $("fractionalDrawer").classList.remove("open");
+  document.body.style.overflow = "";
+  currentFractionalItem = null;
 }
 
 /* ============================================================
-   CART
+   CART – MODIFIED: addToCart accepts qty factor, cart displays decimal
    ============================================================ */
-function addToCart(item) {
+function addToCart(item, qty = 1) {
   const existing = cart.find(c => c.id === item.id);
-  if (existing) existing.qty++;
-  else cart.push({ ...item, qty:1 });
+  if (existing) {
+    existing.qty += qty;
+  } else {
+    cart.push({ 
+      ...item, 
+      qty: qty,
+      name_en: item.name_en,
+      name_ar: item.name_ar,
+      category_en: item.category_en,
+      category_ar: item.category_ar,
+      price: item.salePrice ?? item.price,
+      image_url: item.image_url,
+      unit: item.unit
+    });
+  }
   updateCartBadge();
   showToast(lang === "ar" ? `✅ أضيف إلى السلة` : `✅ Added to bag`);
   refreshAddButtonState();
@@ -1514,7 +1611,7 @@ function addToCart(item) {
 
 function updateQuantity(id, delta) {
   const idx = cart.findIndex(c => c.id === id);
-  if (idx===-1) return;
+  if (idx === -1) return;
   cart[idx].qty += delta;
   if (cart[idx].qty <= 0) cart.splice(idx, 1);
   updateCartBadge();
@@ -1540,7 +1637,7 @@ function clearCart() {
 }
 
 function updateCartBadge() {
-  const total = cart.reduce((s,i) => s+i.qty, 0);
+  const total = cart.reduce((s,i) => s + i.qty, 0);
   const badge = $("cartBadge");
   badge.textContent = total>99 ? "99+" : String(total);
   badge.classList.toggle("show", total>0);
@@ -1595,20 +1692,21 @@ function renderCartUI() {
       : "🌿";
     const price = item.price || 0;
     const qty   = item.qty   || 0;
-    const itemTotalLBP = (price * qty);
-    const metaUnit = item.unit ? ` · ${item.unit}` : "";
+    const itemTotalLBP = price * qty;
+    const qtyDisplay = qty % 1 === 0 ? qty.toString() : qty.toFixed(1);
+    const unitDisplay = item.unit ? ` ${item.unit}` : "";
     return `
       <div class="cart-item">
         <div class="cart-item-image">${imgHtml}</div>
         <div class="cart-item-info">
           <div class="cart-item-name">${escHTML(name)}</div>
-          <div class="cart-item-meta">${escHTML(cat)}${metaUnit}</div>
+          <div class="cart-item-meta">${escHTML(cat)} · ${qtyDisplay}${unitDisplay}</div>
           <div class="cart-item-price">${Number(itemTotalLBP).toLocaleString()} LBP · $${(itemTotalLBP/LBP_PER_USD).toFixed(2)}</div>
         </div>
         <div class="cart-qty">
           <button class="qty-btn" data-action="remove" data-id="${escAttr(item.id)}">🗑</button>
           <button class="qty-btn" data-action="dec"    data-id="${escAttr(item.id)}">−</button>
-          <span class="qty-num">${qty}</span>
+          <span class="qty-num">${qtyDisplay}</span>
           <button class="qty-btn" data-action="inc"    data-id="${escAttr(item.id)}">+</button>
         </div>
       </div>`;
@@ -1624,7 +1722,7 @@ function refreshAddButtonState() {
 }
 
 /* ============================================================
-   WHATSAPP ORDER
+   WHATSAPP ORDER (unchanged)
    ============================================================ */
 function orderWhatsApp() {
   if (!cart.length) return;
@@ -1648,7 +1746,8 @@ function orderWhatsApp() {
       const price = i.price || 0;
       const qty   = i.qty   || 0;
       const unit  = i.unit ? ` (${i.unit})` : "";
-      return `• ${name}${unit} × ${qty} — ${(price*qty).toLocaleString('en')} ل.ل`;
+      const qtyDisplay = qty % 1 === 0 ? qty.toString() : qty.toFixed(1);
+      return `• ${name}${unit} × ${qtyDisplay} — ${(price*qty).toLocaleString('en')} ل.ل`;
     }).join("\n");
     msg = `مرحباً Ryakos Grand Harvest! 🌿\n\nالطلب: ${typeLabel}\n\n${lines}\n\n*الإجمالي: ${totalLBP.toLocaleString('en')} ل.ل (≈ $${totalUSD})*\n\nشكراً 🙏`;
   } else {
@@ -1658,7 +1757,8 @@ function orderWhatsApp() {
       const price = i.price || 0;
       const qty   = i.qty   || 0;
       const unit  = i.unit ? ` (${i.unit})` : "";
-      return `• ${name}${unit} × ${qty} — ${(price*qty).toLocaleString('en')} LBP`;
+      const qtyDisplay = qty % 1 === 0 ? qty.toString() : qty.toFixed(1);
+      return `• ${name}${unit} × ${qtyDisplay} — ${(price*qty).toLocaleString('en')} LBP`;
     }).join("\n");
     msg = `Hello Ryakos Grand Harvest! 🌿\n\nOrder type: ${typeLabel}\n\n${lines}\n\n*Total: ${totalLBP.toLocaleString('en')} LBP (≈ $${totalUSD})*\n\nThank you 🙏`;
   }
@@ -1667,7 +1767,7 @@ function orderWhatsApp() {
 }
 
 /* ============================================================
-   SEARCH
+   SEARCH (unchanged)
    ============================================================ */
 function openSearch() {
   $("searchOverlay").classList.add("open");
@@ -1724,16 +1824,20 @@ function performSearch() {
     el.addEventListener("click", () => {
       const item = allItems.find(i => i.id === el.dataset.searchId);
       if (!item) return;
-      addToCart({ id:item.id, name_en:item.name_en, name_ar:item.name_ar,
-        category_en:item.category_en, category_ar:item.category_ar,
-        price:item.salePrice??item.price, image_url:item.image_url, unit:item.unit });
+      if (item.fractional) {
+        openFractionalModal(item);
+      } else {
+        addToCart({ id:item.id, name_en:item.name_en, name_ar:item.name_ar,
+          category_en:item.category_en, category_ar:item.category_ar,
+          price:item.salePrice??item.price, image_url:item.image_url, unit:item.unit }, 1);
+      }
       closeSearch();
     });
   });
 }
 
 /* ============================================================
-   CONTACT FORM
+   CONTACT FORM (unchanged)
    ============================================================ */
 async function submitContact() {
   const name = $("contactName").value.trim();
@@ -1814,6 +1918,40 @@ function showError(msg) {
   grid.style.display = "grid";
   const rb = document.getElementById("retryBtn");
   if (rb) rb.addEventListener("click", () => location.reload());
+}
+
+/* ============================================================
+   LAZY IMAGES
+   ============================================================ */
+let lazyObserver;
+function initLazyImages(container) {
+  const imgs = Array.from(container.querySelectorAll("img.lazy[data-src]"));
+  if (!("IntersectionObserver" in window)) { imgs.forEach(loadImg); return; }
+  if (!lazyObserver) {
+    lazyObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { loadImg(e.target); lazyObserver.unobserve(e.target); }
+      });
+    }, { rootMargin: "300px" });
+  }
+  imgs.forEach(img => {
+    const rect = img.getBoundingClientRect();
+    if (rect.top < window.innerHeight + 400) loadImg(img);
+    else lazyObserver.observe(img);
+  });
+}
+
+function loadImg(img) {
+  if (!img.dataset.src) return;
+  const src = img.dataset.src;
+  img.removeAttribute("data-src");
+  img.src = src;
+  img.onload  = () => img.classList.add("loaded");
+  img.onerror = () => {
+    img.style.display = "none";
+    const fb = img.nextElementSibling;
+    if (fb && fb.classList.contains("fallback-icon")) fb.style.display = "flex";
+  };
 }
 
 /* ============================================================
