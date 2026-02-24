@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Ryakos Grand Harvest</title>
+  <title>ريكوس - الحصاد الكبير</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
@@ -36,7 +36,7 @@
     html { scroll-behavior: smooth; height: 100%; }
 
     body {
-      font-family: var(--font-en);
+      font-family: var(--font-ar);
       background:
         linear-gradient(160deg,
           rgba(4,30,12,0.94) 0%,
@@ -79,14 +79,23 @@
       opacity: 0; pointer-events: none; transition: opacity 0.25s; backdrop-filter: blur(4px);
     }
     .nav-overlay.open { opacity: 1; pointer-events: all; }
+
     .nav-drawer {
       position: fixed; top: 0; left: 0; bottom: 0; width: var(--nav-w);
       background: var(--white); border-right: 1px solid var(--gray-border);
       z-index: 510; transform: translateX(-100%); transition: transform 0.28s ease;
       display: flex; flex-direction: column; overflow: hidden;
     }
-    body.ar .nav-drawer { left: auto; right: 0; transform: translateX(100%); border-right: none; border-left: 1px solid var(--gray-border); }
-    .nav-drawer.open { transform: translateX(0); }
+    /* Arabic nav drawer – hidden to the right */
+    body.ar .nav-drawer {
+      left: auto; right: 0;
+      transform: translateX(100%);
+      border-right: none; border-left: 1px solid var(--gray-border);
+    }
+    /* Override so .open works in Arabic */
+    .nav-drawer.open,
+    body.ar .nav-drawer.open { transform: translateX(0); }
+
     .nav-header {
       padding: 16px; border-bottom: 1px solid var(--gray-border);
       display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
@@ -241,7 +250,22 @@
       position: absolute; inset: 0;
       background: linear-gradient(to top, rgba(4,30,12,0.92) 0%, rgba(4,30,12,0.5) 60%, rgba(4,30,12,0.15) 100%);
     }
-    .hero-content { position: relative; z-index: 2; padding: 30px 22px; }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 30px 22px;
+      background: rgba(0, 0, 0, 0.4);        /* dark overlay rectangle */
+      backdrop-filter: blur(4px);            /* optional blur */
+      border-radius: var(--radius);          /* optional rounded corners */
+    }
+    .hero-logo {
+      width: 120px;
+      height: auto;
+      margin-bottom: 15px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 5px;
       background: rgba(34,197,94,0.25); border: 1px solid rgba(34,197,94,0.4);
@@ -361,11 +385,21 @@
     .cat-header { padding: 16px 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.12); }
     .cat-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
     .cat-title { font-size: 22px; font-weight: 700; color: white; flex: 1; }
+
+    /* Larger home icon */
     .home-icon {
-      background: rgba(255,255,255,0.15); border-radius: 50%;
-      width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-      font-size: 15px; color: white; flex-shrink: 0; touch-action: manipulation;
+      background: rgba(255,255,255,0.2);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 50%;
+      width: 46px; height: 46px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: white; flex-shrink: 0;
+      touch-action: manipulation;
+      transition: background 0.15s, transform 0.15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
+    .home-icon:active { background: rgba(34,197,94,0.3); transform: scale(0.92); }
+
     .cat-count { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
     .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 12px 2px; align-items: center; }
     .sort-select {
@@ -456,6 +490,7 @@
       opacity: 0; pointer-events: none; transition: opacity 0.2s;
     }
     .cart-overlay.open { opacity: 1; pointer-events: all; }
+
     .cart-drawer {
       position: fixed; top: 0; right: 0; bottom: 0; width: min(380px,100%);
       background: var(--white); z-index: 710; transform: translateX(110%);
@@ -463,8 +498,16 @@
       border-left: 1px solid var(--gray-border);
       padding-bottom: env(safe-area-inset-bottom);
     }
-    body.ar .cart-drawer { right: auto; left: 0; transform: translateX(-110%); border-left: none; border-right: 1px solid var(--gray-border); }
-    .cart-drawer.open { transform: translateX(0); }
+    /* Arabic cart drawer – hidden to the left */
+    body.ar .cart-drawer {
+      right: auto; left: 0;
+      transform: translateX(-110%);
+      border-left: none; border-right: 1px solid var(--gray-border);
+    }
+    /* Override so .open works in Arabic */
+    .cart-drawer.open,
+    body.ar .cart-drawer.open { transform: translateX(0); }
+
     .cart-header {
       padding: 16px 18px; border-bottom: 1px solid var(--gray-border);
       display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
@@ -604,7 +647,7 @@
     }
   </style>
 </head>
-<body>
+<body class="ar">
 
 <div id="toast" role="status" aria-live="polite"></div>
 <div class="refresh-bar" id="refreshBar"></div>
@@ -617,36 +660,36 @@
       <img class="nav-logo-img" src="https://raw.githubusercontent.com/ryakosgrandharvest/ryakosgrandharvest.github.io/main/ryakoslogo.webp" alt="Ryakos Logo" onerror="this.style.display='none'">
       <div>
         <div class="nav-brand" id="navBrand">Ryakos Grand Harvest</div>
-        <div class="nav-sub" id="navSubtitle">Fresh · Lebanon 🇱🇧</div>
+        <div class="nav-sub" id="navSubtitle">طازج · لبنان 🇱🇧</div>
       </div>
     </div>
-    <button class="nav-close" id="navCloseBtn" aria-label="Close">✕</button>
+    <button class="nav-close" id="navCloseBtn" aria-label="إغلاق">✕</button>
   </div>
   <div class="nav-links">
-    <button class="nav-link active" id="navHome">🏠 <span data-en="Home" data-ar="الرئيسية">Home</span></button>
-    <button class="nav-link" id="navAbout">🌿 <span data-en="About Us" data-ar="من نحن">About Us</span></button>
-    <button class="nav-link" id="navContact">💬 <span data-en="Contact" data-ar="تواصل معنا">Contact</span></button>
+    <button class="nav-link active" id="navHome">🏠 <span data-en="Home" data-ar="الرئيسية">الرئيسية</span></button>
+    <button class="nav-link" id="navAbout">🌿 <span data-en="About Us" data-ar="من نحن">من نحن</span></button>
+    <button class="nav-link" id="navContact">💬 <span data-en="Contact" data-ar="تواصل معنا">تواصل معنا</span></button>
   </div>
-  <div class="nav-cat-label" id="navCatLabel">Browse Categories</div>
+  <div class="nav-cat-label" id="navCatLabel">تصفح الفئات</div>
   <div class="nav-cats" id="navCats"></div>
-  <div class="nav-footer">© 2026 Ryakos Grand Harvest · Lebanon</div>
+  <div class="nav-footer">© 2026 ريكوس - الحصاد الكبير · لبنان</div>
 </nav>
 
 <!-- HEADER -->
 <header id="header">
   <div class="header-inner">
-    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+    <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة">
       <span></span><span></span><span></span>
     </button>
     <div class="logo-area" id="logoBtn">
       <img class="header-logo" src="https://raw.githubusercontent.com/ryakosgrandharvest/ryakosgrandharvest.github.io/main/ryakoslogo.webp" alt="Logo" onerror="this.style.display='none'">
-      <div class="logo-text">Ryakos Grand Harvest <small class="logo-sub" id="headerSub">Lebanon 🇱🇧</small></div>
+      <div class="logo-text">ريكوس - الحصاد الكبير <small class="logo-sub" id="headerSub">لبنان 🇱🇧</small></div>
     </div>
     <div class="header-right">
-      <button class="lang-btn" id="langToggleBtn">عربي</button>
+      <button class="lang-btn" id="langToggleBtn">EN</button>
       <button class="currency-btn" id="currencyToggleBtn">$ USD</button>
-      <button class="search-btn" id="searchOpenBtn" aria-label="Search">🔍</button>
-      <button class="cart-btn" id="cartOpenBtn" aria-label="Open cart">
+      <button class="search-btn" id="searchOpenBtn" aria-label="بحث">🔍</button>
+      <button class="cart-btn" id="cartOpenBtn" aria-label="فتح السلة">
         🛒 <span class="cart-badge" id="cartBadge"></span>
       </button>
     </div>
@@ -654,14 +697,14 @@
 </header>
 
 <!-- SEARCH OVERLAY -->
-<div class="search-overlay" id="searchOverlay" role="dialog" aria-label="Search">
+<div class="search-overlay" id="searchOverlay" role="dialog" aria-label="بحث">
   <div class="search-bar">
     <span>🔍</span>
-    <input type="search" id="searchInput" placeholder="Search / ابحث..." autocomplete="off">
-    <button class="search-cancel" id="searchCancelBtn">Cancel</button>
+    <input type="search" id="searchInput" placeholder="ابحث..." autocomplete="off">
+    <button class="search-cancel" id="searchCancelBtn">إلغاء</button>
   </div>
   <div class="search-area" id="searchResults">
-    <div class="search-msg">Start typing to search… / ابدأ الكتابة للبحث</div>
+    <div class="search-msg">ابدأ الكتابة للبحث...</div>
   </div>
 </div>
 
@@ -674,19 +717,21 @@
       <div class="hero-bg"></div>
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <div class="hero-badge">🌱 <span data-en="Fresh from the Farm" data-ar="طازج من المزرعة">Fresh from the Farm</span></div>
-        <div class="hero-title" id="heroTitle">Ryakos Grand Harvest</div>
-        <div class="hero-sub" id="heroSub">Fresh fruits, vegetables & local groceries — delivered to your door in Lebanon.</div>
-        <button class="hero-btn" id="heroBrowseBtn"><span data-en="Browse Collection →" data-ar="تصفح المنتجات ←">Browse Collection →</span></button>
+        <!-- Logo added here -->
+        <img class="hero-logo" src="https://raw.githubusercontent.com/ryakosgrandharvest/ryakosgrandharvest.github.io/main/ryakoslogo.webp" alt="Ryakos Grand Harvest Logo" onerror="this.style.display='none'">
+        <div class="hero-badge">🌱 <span data-en="Fresh from the Farm" data-ar="طازج من المزرعة">طازج من المزرعة</span></div>
+        <div class="hero-title" id="heroTitle">ريكوس - الحصاد الكبير</div>
+        <div class="hero-sub" id="heroSub">فواكه وخضار وبقالة محلية طازجة — توصيل إلى باب منزلك في لبنان.</div>
+        <button class="hero-btn" id="heroBrowseBtn"><span data-en="Browse Collection →" data-ar="تصفح المنتجات ←">تصفح المنتجات ←</span></button>
       </div>
     </div>
     <div class="section-header">
-      <span class="section-title" data-en="Categories" data-ar="الفئات" id="homeCatTitle">Categories</span>
+      <span class="section-title" data-en="Categories" data-ar="الفئات" id="homeCatTitle">الفئات</span>
     </div>
     <div class="cat-strip" id="homeCategories"></div>
     <div class="section-header" style="margin-top:2px">
-      <span class="section-title" data-en="Featured" data-ar="المميزة" id="homeFeatTitle">Featured</span>
-      <button class="section-link" id="viewAllBtn" data-en="View all" data-ar="عرض الكل">View all</button>
+      <span class="section-title" data-en="Featured" data-ar="المميزة" id="homeFeatTitle">المميزة</span>
+      <button class="section-link" id="viewAllBtn" data-en="View all" data-ar="عرض الكل">عرض الكل</button>
     </div>
     <div>
       <div class="skeleton-grid" id="featuredSkeleton">
@@ -704,21 +749,21 @@
   <div id="page-category" class="page">
     <div class="cat-header">
       <div class="cat-title-row">
-        <span class="cat-title" id="categoryTitle">All Items</span>
-        <button class="home-icon" id="catHomeBtn" aria-label="Go home">⌂</button>
+        <span class="cat-title" id="categoryTitle">جميع المنتجات</span>
+        <button class="home-icon" id="catHomeBtn" aria-label="الرئيسية">⌂</button>
       </div>
       <div class="cat-count" id="categoryCount"></div>
     </div>
     <div class="filter-bar">
       <select class="sort-select" id="sortSelect">
-        <option value="default" data-en="Sort by" data-ar="ترتيب حسب">Sort by</option>
-        <option value="price-asc" data-en="Price: Low → High" data-ar="السعر: من الأقل">Price: Low → High</option>
-        <option value="price-desc" data-en="Price: High → Low" data-ar="السعر: من الأعلى">Price: High → Low</option>
-        <option value="name-asc" data-en="Name: A → Z" data-ar="الاسم: أ → ي">Name: A → Z</option>
-        <option value="name-desc" data-en="Name: Z → A" data-ar="الاسم: ي → أ">Name: Z → A</option>
+        <option value="default" data-en="Sort by" data-ar="ترتيب حسب">ترتيب حسب</option>
+        <option value="price-asc" data-en="Price: Low → High" data-ar="السعر: من الأقل">السعر: من الأقل</option>
+        <option value="price-desc" data-en="Price: High → Low" data-ar="السعر: من الأعلى">السعر: من الأعلى</option>
+        <option value="name-asc" data-en="Name: A → Z" data-ar="الاسم: أ → ي">الاسم: أ → ي</option>
+        <option value="name-desc" data-en="Name: Z → A" data-ar="الاسم: ي → أ">الاسم: ي → أ</option>
       </select>
       <label class="sale-toggle">
-        <input type="checkbox" id="saleToggle"> <span data-en="Sale only" data-ar="العروض فقط">Sale only</span>
+        <input type="checkbox" id="saleToggle"> <span data-en="Sale only" data-ar="العروض فقط">العروض فقط</span>
       </label>
     </div>
     <div>
@@ -731,7 +776,7 @@
       <div class="items-grid" id="categoryGrid" style="display:none;"></div>
       <div class="empty-state" id="categoryEmpty" style="display:none;">
         <div class="icon">🌿</div>
-        <p data-en="No items found" data-ar="لا توجد منتجات">No items found</p>
+        <p data-en="No items found" data-ar="لا توجد منتجات">لا توجد منتجات</p>
       </div>
     </div>
     <div id="paginationContainer"></div>
@@ -743,28 +788,28 @@
       <div class="about-hero">
         <img class="about-logo" src="https://raw.githubusercontent.com/ryakosgrandharvest/ryakosgrandharvest.github.io/main/ryakoslogo.webp" alt="Logo" onerror="this.style.display='none'">
         <div class="about-hero-text">
-          <h1 data-en="Ryakos Grand Harvest" data-ar="ريكوس - الحصاد الكبير">Ryakos Grand Harvest</h1>
-          <p data-en="Fresh fruits, vegetables, and local groceries from the heart of Lebanon. Quality you can taste." data-ar="فواكه وخضار وبقالة محلية طازجة من قلب لبنان. جودة تذوقها.">Fresh fruits, vegetables, and local groceries from the heart of Lebanon.</p>
+          <h1 data-en="Ryakos Grand Harvest" data-ar="ريكوس - الحصاد الكبير">ريكوس - الحصاد الكبير</h1>
+          <p data-en="Fresh fruits, vegetables, and local groceries from the heart of Lebanon. Quality you can taste." data-ar="فواكه وخضار وبقالة محلية طازجة من قلب لبنان. جودة تذوقها.">فواكه وخضار وبقالة محلية طازجة من قلب لبنان. جودة تذوقها.</p>
         </div>
       </div>
       <div class="card">
-        <h2 data-en="📖 Our Story" data-ar="📖 قصتنا">📖 Our Story</h2>
-        <p data-en="Founded with a passion for fresh, quality produce, Ryakos Grand Harvest brings the best of Lebanon's farms directly to your table. We believe everyone deserves access to fresh, wholesome food." data-ar="تأسست بشغف لتقديم المنتجات الطازجة عالية الجودة، تجلب ريكوس أفضل ما تنتجه مزارع لبنان مباشرة إلى طاولتك. نؤمن بأن الجميع يستحق الوصول إلى طعام طازج وصحي.">Founded with a passion for fresh, quality produce, Ryakos Grand Harvest brings the best of Lebanon's farms directly to your table.</p>
+        <h2 data-en="📖 Our Story" data-ar="📖 قصتنا">📖 قصتنا</h2>
+        <p data-en="Founded with a passion for fresh, quality produce, Ryakos Grand Harvest brings the best of Lebanon's farms directly to your table. We believe everyone deserves access to fresh, wholesome food." data-ar="تأسست بشغف لتقديم المنتجات الطازجة عالية الجودة، تجلب ريكوس أفضل ما تنتجه مزارع لبنان مباشرة إلى طاولتك. نؤمن بأن الجميع يستحق الوصول إلى طعام طازج وصحي.">تأسست بشغف لتقديم المنتجات الطازجة عالية الجودة، تجلب ريكوس أفضل ما تنتجه مزارع لبنان مباشرة إلى طاولتك. نؤمن بأن الجميع يستحق الوصول إلى طعام طازج وصحي.</p>
       </div>
       <div class="card">
-        <h2 data-en="📍 Location & Hours" data-ar="📍 الموقع والأوقات">📍 Location & Hours</h2>
-        <p>📍 <span data-en="Zgharta Zewyeh, North Lebanon" data-ar="زغرتا زاوية، شمال لبنان">Zgharta Zewyeh, North Lebanon</span></p>
-        <p>⏰ <span data-en="Monday–Saturday  8:00 AM – 7:00 PM" data-ar="الاثنين–السبت  8:00 ص – 7:00 م">Monday–Saturday  8:00 AM – 7:00 PM</span></p>
-        <p>⏰ <span data-en="Sunday  9:00 AM – 2:00 PM" data-ar="الأحد  9:00 ص – 2:00 م">Sunday  9:00 AM – 2:00 PM</span></p>
+        <h2 data-en="📍 Location & Hours" data-ar="📍 الموقع والأوقات">📍 الموقع والأوقات</h2>
+        <p>📍 <span data-en="Zgharta Zewyeh, North Lebanon" data-ar="زغرتا زاوية، شمال لبنان">زغرتا زاوية، شمال لبنان</span></p>
+        <p>⏰ <span data-en="Monday–Saturday  8:00 AM – 7:00 PM" data-ar="الاثنين–السبت  8:00 ص – 7:00 م">الاثنين–السبت  8:00 ص – 7:00 م</span></p>
+        <p>⏰ <span data-en="Sunday  9:00 AM – 2:00 PM" data-ar="الأحد  9:00 ص – 2:00 م">الأحد  9:00 ص – 2:00 م</span></p>
         <p>📞 +961 XX XXX XXX</p>
       </div>
       <div class="card">
-        <h2 data-en="🌿 Our Values" data-ar="🌿 قيمنا">🌿 Our Values</h2>
+        <h2 data-en="🌿 Our Values" data-ar="🌿 قيمنا">🌿 قيمنا</h2>
         <div class="values-grid">
-          <div class="value-item"><h3 data-en="Freshness" data-ar="الطزاجة">Freshness</h3><p data-en="Daily fresh produce" data-ar="منتجات طازجة يومياً">Daily fresh produce</p></div>
-          <div class="value-item"><h3 data-en="Quality" data-ar="الجودة">Quality</h3><p data-en="Carefully selected" data-ar="مختارة بعناية">Carefully selected</p></div>
-          <div class="value-item"><h3 data-en="Community" data-ar="المجتمع">Community</h3><p data-en="Supporting local" data-ar="دعم المحلي">Supporting local</p></div>
-          <div class="value-item"><h3 data-en="Trust" data-ar="الثقة">Trust</h3><p data-en="Honest pricing" data-ar="أسعار شفافة">Honest pricing</p></div>
+          <div class="value-item"><h3 data-en="Freshness" data-ar="الطزاجة">الطزاجة</h3><p data-en="Daily fresh produce" data-ar="منتجات طازجة يومياً">منتجات طازجة يومياً</p></div>
+          <div class="value-item"><h3 data-en="Quality" data-ar="الجودة">الجودة</h3><p data-en="Carefully selected" data-ar="مختارة بعناية">مختارة بعناية</p></div>
+          <div class="value-item"><h3 data-en="Community" data-ar="المجتمع">المجتمع</h3><p data-en="Supporting local" data-ar="دعم المحلي">دعم المحلي</p></div>
+          <div class="value-item"><h3 data-en="Trust" data-ar="الثقة">الثقة</h3><p data-en="Honest pricing" data-ar="أسعار شفافة">أسعار شفافة</p></div>
         </div>
       </div>
     </div>
@@ -774,21 +819,21 @@
   <div id="page-contact" class="page">
     <div class="page-wrap">
       <div class="card">
-        <h2 data-en="💬 Send us a Message" data-ar="💬 أرسل لنا رسالة">💬 Send us a Message</h2>
+        <h2 data-en="💬 Send us a Message" data-ar="💬 أرسل لنا رسالة">💬 أرسل لنا رسالة</h2>
         <div id="contactForm">
-          <span class="optional-label" data-en="Name (optional)" data-ar="الاسم (اختياري)">Name (optional)</span>
-          <input type="text" class="form-field" id="contactName" placeholder="Your name / اسمك">
-          <span class="optional-label" data-en="Phone or WhatsApp (optional)" data-ar="الهاتف أو واتساب (اختياري)">Phone or WhatsApp (optional)</span>
+          <span class="optional-label" data-en="Name (optional)" data-ar="الاسم (اختياري)">الاسم (اختياري)</span>
+          <input type="text" class="form-field" id="contactName" placeholder="اسمك">
+          <span class="optional-label" data-en="Phone or WhatsApp (optional)" data-ar="الهاتف أو واتساب (اختياري)">الهاتف أو واتساب (اختياري)</span>
           <input type="text" class="form-field" id="contactInfo" placeholder="+961...">
-          <span class="optional-label" style="color: #dc2626;" data-en="Message (required) *" data-ar="الرسالة (مطلوب) *">Message (required) *</span>
-          <textarea class="form-field" id="contactMsg" rows="4" style="resize:vertical;" placeholder="Your feedback / ملاحظاتك..."></textarea>
-          <button class="submit-btn" id="contactSubmitBtn" data-en="Send Message 📨" data-ar="إرسال الرسالة 📨">Send Message 📨</button>
+          <span class="optional-label" style="color: #dc2626;" data-en="Message (required) *" data-ar="الرسالة (مطلوب) *">الرسالة (مطلوب) *</span>
+          <textarea class="form-field" id="contactMsg" rows="4" style="resize:vertical;" placeholder="ملاحظاتك..."></textarea>
+          <button class="submit-btn" id="contactSubmitBtn" data-en="Send Message 📨" data-ar="إرسال الرسالة 📨">إرسال الرسالة 📨</button>
         </div>
         <div id="contactSuccess" style="display:none; text-align:center; padding:24px 10px;">
           <div style="font-size:46px; margin-bottom:10px;">✅</div>
-          <h3 style="font-size:17px; margin-bottom:6px; color:var(--primary);" data-en="Message Sent!" data-ar="تم الإرسال!">Message Sent!</h3>
-          <p style="font-size:13px; color:var(--gray-text); margin-bottom:16px;" data-en="Thank you for your feedback! We'll get back to you soon." data-ar="شكراً على ملاحظاتك! سنتواصل معك قريباً.">Thank you for your feedback!</p>
-          <button id="contactResetBtn" style="background:var(--primary); color:white; border:none; padding:9px 22px; border-radius:40px; font-weight:700; cursor:pointer; font-family:inherit; font-size:13px;" data-en="Send Another" data-ar="إرسال أخرى">Send Another</button>
+          <h3 style="font-size:17px; margin-bottom:6px; color:var(--primary);" data-en="Message Sent!" data-ar="تم الإرسال!">تم الإرسال!</h3>
+          <p style="font-size:13px; color:var(--gray-text); margin-bottom:16px;" data-en="Thank you for your feedback! We'll get back to you soon." data-ar="شكراً على ملاحظاتك! سنتواصل معك قريباً.">شكراً على ملاحظاتك! سنتواصل معك قريباً.</p>
+          <button id="contactResetBtn" style="background:var(--primary); color:white; border:none; padding:9px 22px; border-radius:40px; font-weight:700; cursor:pointer; font-family:inherit; font-size:13px;" data-en="Send Another" data-ar="إرسال أخرى">إرسال أخرى</button>
         </div>
       </div>
     </div>
@@ -796,27 +841,27 @@
 
 </div><!-- /#app -->
 
-<button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+<button class="back-to-top" id="backToTop" aria-label="العودة للأعلى">↑</button>
 
 <!-- CART DRAWER -->
 <div class="cart-overlay" id="cartOverlay"></div>
-<div class="cart-drawer" id="cartDrawer" role="dialog" aria-label="Shopping bag">
+<div class="cart-drawer" id="cartDrawer" role="dialog" aria-label="سلة التسوق">
   <div class="cart-header">
-    <h2>🛒 <span data-en="Your Bag" data-ar="سلة التسوق">Your Bag</span></h2>
+    <h2>🛒 <span data-en="Your Bag" data-ar="سلة التسوق">سلة التسوق</span></h2>
     <button class="cart-close" id="cartCloseBtn">✕</button>
   </div>
   <div class="order-type-section" id="orderTypeSection" style="display:none;">
-    <div class="order-type-label" id="orderTypeLabel">Choose order type: *</div>
+    <div class="order-type-label" id="orderTypeLabel">اختر نوع الطلب: *</div>
     <div class="order-type-btns">
-      <button class="order-type-btn" id="btnDelivery" data-type="delivery">🚚 <span data-en="Delivery" data-ar="توصيل">Delivery</span></button>
-      <button class="order-type-btn" id="btnPickup" data-type="pickup">🏪 <span data-en="Pickup" data-ar="استلام">Pickup</span></button>
+      <button class="order-type-btn" id="btnDelivery" data-type="delivery">🚚 <span data-en="Delivery" data-ar="توصيل">توصيل</span></button>
+      <button class="order-type-btn" id="btnPickup" data-type="pickup">🏪 <span data-en="Pickup" data-ar="استلام">استلام</span></button>
     </div>
-    <div class="order-type-error" id="orderTypeError">Please select Delivery or Pickup before ordering.</div>
+    <div class="order-type-error" id="orderTypeError">الرجاء اختيار التوصيل أو الاستلام قبل الطلب.</div>
   </div>
   <div class="cart-items" id="cartItemsList"></div>
   <div class="cart-footer" id="cartFooter" style="display:none;">
     <div class="cart-total-row">
-      <span class="cart-total-label" data-en="Total" data-ar="الإجمالي">Total</span>
+      <span class="cart-total-label" data-en="Total" data-ar="الإجمالي">الإجمالي</span>
       <div class="cart-total-prices">
         <div class="cart-total-lbp" id="cartTotalLBP">0 LBP</div>
         <div class="cart-total-usd" id="cartTotalUSD"></div>
@@ -828,9 +873,9 @@
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
         <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.28 7.043L.787 23.267 5.2 21.8C7.124 23.185 9.464 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.322 0-4.482-.716-6.267-1.939l-.449-.287-3.146 1.006.986-3.058-.302-.479C1.72 16.434 1 14.3 1 12 1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11z"/>
       </svg>
-      <span data-en="Order via WhatsApp" data-ar="اطلب عبر واتساب">Order via WhatsApp</span>
+      <span data-en="Order via WhatsApp" data-ar="اطلب عبر واتساب">اطلب عبر واتساب</span>
     </button>
-    <button class="clear-btn" id="clearCartBtn" data-en="Clear Bag 🗑" data-ar="مسح السلة 🗑">Clear Bag 🗑</button>
+    <button class="clear-btn" id="clearCartBtn" data-en="Clear Bag 🗑" data-ar="مسح السلة 🗑">مسح السلة 🗑</button>
   </div>
 </div>
 
@@ -838,41 +883,40 @@
 <footer>
   <div class="footer-logo-wrap">
     <img class="footer-logo-img" src="https://raw.githubusercontent.com/ryakosgrandharvest/ryakosgrandharvest.github.io/main/ryakoslogo.webp" alt="Logo" onerror="this.style.display='none'">
-    <div class="footer-logo">Ryakos Grand Harvest</div>
+    <div class="footer-logo">ريكوس - الحصاد الكبير</div>
   </div>
-  <div class="footer-sub">🌿 <span data-en="Fresh Fruits · Vegetables · Groceries · Lebanon" data-ar="فواكه طازجة · خضار · بقالة · لبنان">Fresh Fruits · Vegetables · Groceries · Lebanon</span></div>
+  <div class="footer-sub">🌿 <span data-en="Fresh Fruits · Vegetables · Groceries · Lebanon" data-ar="فواكه طازجة · خضار · بقالة · لبنان">فواكه طازجة · خضار · بقالة · لبنان</span></div>
   <div class="footer-links">
-    <button id="footerHome" data-en="Home" data-ar="الرئيسية">Home</button>
-    <button id="footerShop" data-en="Shop" data-ar="تسوق">Shop</button>
-    <button id="footerAbout" data-en="About" data-ar="من نحن">About</button>
-    <button id="footerContact" data-en="Contact" data-ar="تواصل">Contact</button>
+    <button id="footerHome" data-en="Home" data-ar="الرئيسية">الرئيسية</button>
+    <button id="footerShop" data-en="Shop" data-ar="تسوق">تسوق</button>
+    <button id="footerAbout" data-en="About" data-ar="من نحن">من نحن</button>
+    <button id="footerContact" data-en="Contact" data-ar="تواصل">تواصل</button>
   </div>
   <div class="footer-copy">
-    © 2026 Ryakos Grand Harvest — <span data-en="Developed by" data-ar="تطوير">Developed by</span>
-    <a href="https://maykelkhouryyammine.github.io" target="_blank" rel="noopener">Maykel Yammine</a>
+    © 2026 ريكوس - الحصاد الكبير — <span data-en="Developed by" data-ar="تطوير">تطوير</span>
+    <a href="https://maykelkhouryyammine.github.io" target="_blank" rel="noopener">مايكل يمين</a>
   </div>
 </footer>
 
 <script>
 /* ============================================================
-   ⚙️  CONFIG — Replace these with your Google Apps Script URLs
+   ⚙️  CONFIG
    ============================================================ */
 const SHEET_API    = "https://script.google.com/macros/s/AKfycbx8THsto1W21eKbpPUw_2qi0C2HxUrmv5EbzSMgWqthigwCfTvy9iNHI63Bh6VHXyx_/exec";
 const FEEDBACK_API = "https://script.google.com/macros/s/AKfycbxZJ3WMu3rAeUMJoVrGxnxZ2N_2sD9bGZEe2vVmOhVzbv_iDT7WOGUf1hr_BBhDuj7l/exec";
-const WHATSAPP_NUM = "96103372486"; // Replace with actual number
-const LBP_PER_USD  = 89500;          // Exchange rate: 89,500 LBP = $1
+const WHATSAPP_NUM = "96103372486";
+const LBP_PER_USD  = 89500;
 const PER_PAGE     = 20;
 
-/* Cache keys — bump version when sheet structure changes */
 const CACHE_KEY    = "rgh_v1_data";
 const CACHE_TS_KEY = "rgh_v1_ts";
-const CACHE_TTL    = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL    = 5 * 60 * 1000;
 
 /* ============================================================
    STATE
    ============================================================ */
 let allItems       = [];
-let categories     = [];      // [{key, en, ar}]
+let categories     = [];
 let categoryCounts = {};
 let dataReady      = false;
 let currentPage    = "home";
@@ -881,9 +925,9 @@ let currentPageNum = 1;
 let sortOption     = "default";
 let saleOnly       = false;
 let cart           = [];
-let lang           = "en";    // "en" | "ar"
+let lang           = "ar";
 let showUSD        = false;
-let orderType      = null;    // "delivery" | "pickup"
+let orderType      = null;
 
 const $ = id => document.getElementById(id);
 
@@ -908,11 +952,10 @@ function applyLang() {
     el.textContent = lang === "ar" ? (el.dataset.ar || el.dataset.en) : el.dataset.en;
   });
 
-  // Specific labels
-  $("navCatLabel").textContent  = lang === "ar" ? "تصفح الفئات" : "Browse Categories";
+  $("navCatLabel").textContent    = lang === "ar" ? "تصفح الفئات" : "Browse Categories";
   $("orderTypeLabel").textContent = lang === "ar" ? "اختر نوع الطلب: *" : "Choose order type: *";
   $("orderTypeError").textContent = lang === "ar" ? "الرجاء اختيار التوصيل أو الاستلام قبل الطلب." : "Please select Delivery or Pickup before ordering.";
-  $("searchInput").placeholder  = lang === "ar" ? "ابحث..." : "Search...";
+  $("searchInput").placeholder    = lang === "ar" ? "ابحث..." : "Search...";
   $("searchCancelBtn").textContent = lang === "ar" ? "إلغاء" : "Cancel";
 
   if (dataReady) {
@@ -1027,7 +1070,7 @@ function normalizeItem(item) {
     image_url:   String(item.image_url   || "").trim(),
     description_en: String(item.description_en || item.description || "").trim(),
     description_ar: String(item.description_ar || "").trim(),
-    unit:        String(item.unit || "").trim()  // e.g. "1kg", "½kg", "800g", "1 pc"
+    unit:        String(item.unit || "").trim()
   };
 }
 
@@ -1251,17 +1294,17 @@ function renderHomeCategories() {
 
 function renderFeatured() {
   if (!dataReady) return;
-  const skel = $("featuredSkeleton");
-  const grid = $("featuredGrid");
+  const skel   = $("featuredSkeleton");
+  const grid   = $("featuredGrid");
   const pagCon = $("featuredPagination");
 
   let featured = allItems.filter(i => i.available && i.featured);
   if (!featured.length) featured = allItems.filter(i => i.available).slice(0, 8);
 
-  const total = featured.length;
+  const total      = featured.length;
   const totalPages = Math.ceil(total / PER_PAGE);
-  const start = (currentPageNum - 1) * PER_PAGE;
-  const pageItems = featured.slice(start, start + PER_PAGE);
+  const start      = (currentPageNum - 1) * PER_PAGE;
+  const pageItems  = featured.slice(start, start + PER_PAGE);
 
   grid.innerHTML = pageItems.map(itemCardHTML).join("");
   skel.style.display = "none";
@@ -1300,8 +1343,8 @@ function renderCategoryPage() {
   if (saleOnly)             items = items.filter(i => i.onSale);
   items = sortItems(items, sortOption);
 
-  const total = items.length;
-  const noItems = lang === "ar" ? "لا توجد منتجات" : "No items";
+  const total    = items.length;
+  const noItems  = lang === "ar" ? "لا توجد منتجات" : "No items";
   const itemsWord = lang === "ar" ? "منتج" : `item${total!==1?"s":""}`;
   countEl.textContent = total === 0 ? noItems : `${total} ${itemsWord}`;
 
@@ -1516,8 +1559,8 @@ function closeCart() {
 }
 
 function renderCartUI() {
-  const list   = $("cartItemsList");
-  const footer = $("cartFooter");
+  const list     = $("cartItemsList");
+  const footer   = $("cartFooter");
   const orderSec = $("orderTypeSection");
 
   if (!cart.length) {
@@ -1527,17 +1570,16 @@ function renderCartUI() {
         <p>${lang==="ar"?"سلتك فارغة":"Your bag is empty"}</p>
         <button class="cart-empty-btn" id="emptyBrowseBtn">${lang==="ar"?"تصفح المنتجات":"Browse Items"}</button>
       </div>`;
-    footer.style.display = "none";
+    footer.style.display   = "none";
     orderSec.style.display = "none";
     const eb = document.getElementById("emptyBrowseBtn");
     if (eb) eb.addEventListener("click", () => { closeCart(); showCategory("all",1); });
     return;
   }
 
-  footer.style.display = "block";
+  footer.style.display   = "block";
   orderSec.style.display = "block";
 
-  // Totals
   const totalLBP = cart.reduce((s,i) => s + (i.price||0) * (i.qty||0), 0);
   const totalUSD = (totalLBP / LBP_PER_USD).toFixed(2);
   $("cartTotalLBP").textContent = `${Number(totalLBP).toLocaleString()} LBP`;
@@ -1587,7 +1629,6 @@ function refreshAddButtonState() {
 function orderWhatsApp() {
   if (!cart.length) return;
 
-  // Validate order type
   if (!orderType) {
     $("orderTypeError").classList.add("show");
     $("orderTypeSection").scrollIntoView({ behavior:"smooth" });
@@ -1603,23 +1644,23 @@ function orderWhatsApp() {
   if (lang === "ar") {
     const typeLabel = orderType === "delivery" ? "🚚 توصيل" : "🏪 استلام";
     const lines = cart.map(i => {
-      const name = i.name_ar || i.name_en;
+      const name  = i.name_ar || i.name_en;
       const price = i.price || 0;
       const qty   = i.qty   || 0;
       const unit  = i.unit ? ` (${i.unit})` : "";
-      return `• ${name}${unit} × ${qty} — ${Number(price*qty).toLocaleString()} ل.ل`;
+      return `• ${name}${unit} × ${qty} — ${(price*qty).toLocaleString('en')} ل.ل`;
     }).join("\n");
-    msg = `مرحباً Ryakos Grand Harvest! 🌿\n\nالطلب: ${typeLabel}\n\n${lines}\n\n*الإجمالي: ${Number(totalLBP).toLocaleString()} ل.ل (≈ $${totalUSD})*\n\nشكراً 🙏`;
+    msg = `مرحباً Ryakos Grand Harvest! 🌿\n\nالطلب: ${typeLabel}\n\n${lines}\n\n*الإجمالي: ${totalLBP.toLocaleString('en')} ل.ل (≈ $${totalUSD})*\n\nشكراً 🙏`;
   } else {
     const typeLabel = orderType === "delivery" ? "🚚 Delivery" : "🏪 Pickup";
     const lines = cart.map(i => {
-      const name = i.name_en || i.name_ar;
+      const name  = i.name_en || i.name_ar;
       const price = i.price || 0;
       const qty   = i.qty   || 0;
       const unit  = i.unit ? ` (${i.unit})` : "";
-      return `• ${name}${unit} × ${qty} — ${Number(price*qty).toLocaleString()} LBP`;
+      return `• ${name}${unit} × ${qty} — ${(price*qty).toLocaleString('en')} LBP`;
     }).join("\n");
-    msg = `Hello Ryakos Grand Harvest! 🌿\n\nOrder type: ${typeLabel}\n\n${lines}\n\n*Total: ${Number(totalLBP).toLocaleString()} LBP (≈ $${totalUSD})*\n\nThank you 🙏`;
+    msg = `Hello Ryakos Grand Harvest! 🌿\n\nOrder type: ${typeLabel}\n\n${lines}\n\n*Total: ${totalLBP.toLocaleString('en')} LBP (≈ $${totalUSD})*\n\nThank you 🙏`;
   }
 
   window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, "_blank");
@@ -1692,21 +1733,20 @@ function performSearch() {
 }
 
 /* ============================================================
-   CONTACT FORM — name & phone optional, message mandatory
+   CONTACT FORM
    ============================================================ */
 async function submitContact() {
   const name = $("contactName").value.trim();
   const info = $("contactInfo").value.trim();
   const msg  = $("contactMsg").value.trim();
 
-  // Only message is required
   if (!msg) {
     showToast(lang === "ar" ? "الرجاء كتابة رسالتك" : "Please write your message");
     $("contactMsg").focus();
     return;
   }
 
-  const btn = $("contactSubmitBtn");
+  const btn  = $("contactSubmitBtn");
   const orig = btn.textContent;
   btn.disabled = true;
   btn.textContent = lang === "ar" ? "جارٍ الإرسال..." : "Sending...";
